@@ -1,6 +1,6 @@
 Mr Clean
 
-For revoving debris from the flight scene after a crash or BDAc battle
+For removing debris from the flight scene after a crash or BDAc battle
 
 All code contained within Mr Clean is written from scratch by DoctorDavinci and is Licensed under the GPLv3 License
 
