@@ -8,7 +8,28 @@ namespace MrClean
     [KSPAddon(KSPAddon.Startup.Flight, false)]
     public class MrClean : MonoBehaviour
     {
+        private const float WindowWidth = 250;
+        private const float DraggableHeight = 40;
+        private const float LeftIndent = 12;
+        private const float ContentTop = 20;
+        public static MrClean instance;
+        public static bool GuiEnableMrClean;
+        public static bool HasAddedButton;
+        private readonly float _incrButtonWidth = 26;
+        private readonly float contentWidth = WindowWidth - 2 * LeftIndent;
+        private readonly float entryHeight = 20;
+        private float _contentWidth;
+        private bool _gameUiToggle;
+        private float _windowHeight = 250;
+        private Rect _windowRect;
+
+        public bool guiActive;
+        private bool auto = false;
+        private float _delayTimer = 0.0f;
+
+
         public int debris = 0;
+        private bool triggered = false;
 
         private void Start()
         {
@@ -32,10 +53,51 @@ namespace MrClean
             }
         }
 
+        public void Update()
+        {
+            if (HighLogic.LoadedSceneIsFlight)
+            {
+                if (auto && !triggered)
+                {
+                    triggered = true;
+                    StartCoroutine(RealTimeCheck());
+                }
+            }
+        }
+
+        IEnumerator RealTimeCheck()
+        {
+            var RTC_ = HighLogic.CurrentGame.flightState.universalTime;
+            yield return new WaitForSecondsRealtime(2);
+            var _RTC = HighLogic.CurrentGame.flightState.universalTime;
+            var RTC = _RTC - RTC_;
+
+            var IGC_ = HighLogic.CurrentGame.flightState.universalTime;
+            yield return new WaitForSeconds(2);
+            var _IGC = HighLogic.CurrentGame.flightState.universalTime;
+            var IGC = _IGC - IGC_;
+
+            yield return new WaitForFixedUpdate();
+
+            if (IGC <= RTC * 0.80)
+            {
+                ClearDebris();
+            }
+            else
+            {
+                yield return new WaitForSeconds(25);
+                triggered = false;
+            }
+        }
+
         private void ClearDebris()
         {
             Debug.LogError("Mr Clean: Start Clearing Debris");
-            ScreenMsg("<color=#cfc100ff><b>Mr Clean: Getting a Mop and Bucket .......</b></color>");
+
+            if (!auto)
+            {
+                ScreenMsg("<color=#cfc100ff><b>Mr Clean: Getting a Mop and Bucket .......</b></color>");
+            }
 
             StartCoroutine(ClearDebrisRoutine());
         }
@@ -51,22 +113,25 @@ namespace MrClean
 
                 if (!v.Current.isEVA)
                 {
-                    if (v.Current.vesselName.Contains("Debris"))
+                    if (v.Current.vesselName.Contains("Debris") || v.Current.vesselType == VesselType.Debris)
                     {
-                        debris += 1;
-                        var count = 0;
-                        List<Part>.Enumerator p = v.Current.parts.GetEnumerator();
-                        while (p.MoveNext())
+                        if (v.Current.missionTime >= 30)
                         {
-                            if (count == 0)
+                            debris += 1;
+                            var count = 0;
+                            List<Part>.Enumerator p = v.Current.parts.GetEnumerator();
+                            while (p.MoveNext())
                             {
-                                count += 1;
+                                if (count == 0)
+                                {
+                                    count += 1;
 
-                                p.Current.AddModule("ModuleDestroyVessel", true);
+                                    p.Current.AddModule("ModuleDestroyVessel", true);
+                                }
                             }
-                        }
 
-                        yield return new WaitForEndOfFrame();
+                            yield return new WaitForEndOfFrame();
+                        }
                     }
                 }
             }
@@ -75,8 +140,16 @@ namespace MrClean
 
             Debug.LogError("MR CLEAN FINISHED ... REMOVING " + debris + " TOTAL PIECES OF DEBRIS FROM GAME");
 
-            ScreenMsg("<color=#cfc100ff><b>MR CLEAN REMOVING " + debris + " PIECES OF DEBRIS FROM GAME ... LEMONY FRESH<color></b>");
-
+            if (auto)
+            {
+                yield return new WaitForSeconds(25);
+                triggered = false;
+            }
+            else
+            {
+                ScreenMsg("<color=#cfc100ff><b>MR CLEAN REMOVING " + debris + " PIECES OF DEBRIS FROM GAME ... LEMONY FRESH<color></b>");
+                triggered = false;
+            }
         }
 
         private void Dummy()
@@ -96,34 +169,14 @@ namespace MrClean
         {
             if (GuiEnableMrClean)
             {
-                GuiEnableMrClean = false;
-                guiActive = false;
+                GameUiDisableMrClean();
 
             }
             else
             {
-                GuiEnableMrClean = true;
-                guiActive = true;
+                GameUiEnableMrClean();
             }
         }
-
-        private const float WindowWidth = 250;
-        private const float DraggableHeight = 40;
-        private const float LeftIndent = 12;
-        private const float ContentTop = 20;
-        public static MrClean instance;
-        public static bool GuiEnableMrClean;
-        public static bool HasAddedButton;
-        private readonly float _incrButtonWidth = 26;
-        private readonly float contentWidth = WindowWidth - 2 * LeftIndent;
-        private readonly float entryHeight = 20;
-        private float _contentWidth;
-        private bool _gameUiToggle;
-        private float _windowHeight = 250;
-        private Rect _windowRect;
-
-        public bool guiActive;
-        public bool ironKerbal;
 
         /// <summary>
         /// /////////////////////////
@@ -158,15 +211,18 @@ namespace MrClean
             _contentWidth = WindowWidth - 2 * LeftIndent;
 
             DrawMrCleanTitle(line);
-            DrawMissionsText(line);
+            DrawLemonsText(line);
             line++;
             DrawGetMop(line);
+            line++;
+            AutoScrubToggle(line);
+
 
             _windowHeight = ContentTop + line * entryHeight + entryHeight + (entryHeight / 2);
             _windowRect.height = _windowHeight;
         }
 
-        private void DrawMissionsText(float line)
+        private void DrawLemonsText(float line)
         {
             var centerLabel = new GUIStyle
             {
@@ -196,7 +252,28 @@ namespace MrClean
             }
         }
 
+        private void ToggleAuto()
+        {
+            if (auto)
+            {
+                    auto = false;
+            }
+            else
+            {
+                    auto = true;
+            }
+        }
 
+        private void AutoScrubToggle(float line)
+        {
+            GUIStyle style = auto ? HighLogic.Skin.box : HighLogic.Skin.button;
+            var saveRect = new Rect(LeftIndent * 1.5f, ContentTop + line * entryHeight, contentWidth * 0.9f, entryHeight);
+
+            if (GUI.Button(saveRect, "Auto Scrub", style))
+            {
+                ToggleAuto();
+            }
+        }
 
         private void EnableGuiMrClean()
         {

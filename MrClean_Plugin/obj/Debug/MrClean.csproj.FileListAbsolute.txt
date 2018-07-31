@@ -1,0 +1,10 @@
+C:\Users\Black Ops\Desktop\MODS 1.4.3\MrClean\MrClean_Plugin\obj\Debug\MrClean.csprojResolveAssemblyReference.cache
+C:\Users\Black Ops\Desktop\MODS 1.4.3\MrClean\MrClean_Plugin\obj\Debug\MrClean.csproj.CoreCompileInputs.cache
+C:\Users\Black Ops\Desktop\MODS 1.4.3\MrClean\MrClean_Plugin\obj\Debug\MrClean.dll
+C:\Users\Black Ops\Desktop\MODS 1.4.3\MrClean\MrClean_Plugin\obj\Debug\MrClean.pdb
+C:\Users\Black Ops\Desktop\MODS 1.4.3\MrClean\MrClean_Plugin\obj\Debug\KSPAssets.dll
+C:\Users\Black Ops\Desktop\MODS 145\MrClean\MrClean_Plugin\obj\Debug\MrClean.csprojResolveAssemblyReference.cache
+C:\Users\Black Ops\Desktop\MODS 145\MrClean\MrClean_Plugin\obj\Debug\MrClean.csproj.CoreCompileInputs.cache
+C:\Users\Black Ops\Desktop\MODS 145\MrClean\MrClean_Plugin\obj\Debug\MrClean.dll
+C:\Users\Black Ops\Desktop\MODS 145\MrClean\MrClean_Plugin\obj\Debug\MrClean.pdb
+C:\Users\Black Ops\Desktop\MODS 145\MrClean\MrClean_Plugin\obj\Debug\KSPAssets.dll
